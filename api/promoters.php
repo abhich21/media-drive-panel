@@ -104,10 +104,11 @@ function createPromoter()
         errorResponse('Email already exists');
     }
 
-    $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+    // TESTING MODE: Store plain text password (remove in production!)
+    $plainPassword = $data['password'];
 
     $sql = "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'promoter')";
-    dbExecute($sql, [$data['name'], $data['email'], $data['phone'], $hashedPassword]);
+    dbExecute($sql, [$data['name'], $data['email'], $data['phone'], $plainPassword]);
 
     successResponse(['id' => dbLastId()], 'Promoter created successfully');
 }
@@ -135,7 +136,8 @@ function updatePromoter()
 
     if (isset($_POST['password']) && !empty($_POST['password'])) {
         $updates[] = "password = ?";
-        $params[] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        // TESTING MODE: Store plain text password (remove in production!)
+        $params[] = $_POST['password'];
     }
 
     if (empty($updates))

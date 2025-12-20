@@ -162,9 +162,9 @@ CREATE INDEX idx_attendance_date ON promoter_attendance(date);
 CREATE INDEX idx_feedback_event ON feedback(event_id);
 
 -- ================================================
--- Sample Superadmin User (password: admin123)
+-- Sample Users (PLAIN TEXT PASSWORDS - TESTING ONLY!)
 -- ================================================
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin', 'admin@cloudplay.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'superadmin'),
-('Demo Client', 'client@demo.com', '$2y$10$rHcFp.K8KQkJqJQKgL9HQuqBcTMVU0mj2VqhMFJ4VqBhEyJQu3Ey6', 'client'),
-('Demo Promoter', 'promoter@demo.com', '$2y$10$H.3iJKQS8hKx5OJlNqO.ROk.NQrJDpK8LqVXYBxKK.V9UpZXfLkYy', 'promoter');
+('Admin', 'admin@cloudplay.com', 'admin123', 'superadmin'),
+('Demo Client', 'client@demo.com', 'client123', 'client'),
+('Demo Promoter', 'promoter@demo.com', 'promoter123', 'promoter');

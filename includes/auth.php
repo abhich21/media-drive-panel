@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/database.php';
 // Get base URL for redirects (calculate from includes folder, not script location)
 // This ensures correct path whether called from /api/, /pages/, or root
 $scriptPath = $_SERVER['SCRIPT_NAME'];
-$projectRoot = '/MDM'; // Hardcode project folder name for reliability
+$projectRoot = '/mdm-new/media-drive-panel'; // Updated project folder path
 define('BASE_PATH', $projectRoot);
 
 /**
@@ -94,10 +94,10 @@ function loginUser($email, $password)
     error_log("USER FOUND: " . ($user ? "YES - ID: " . $user['id'] . ", Role: " . $user['role'] : "NO"));
 
     if ($user) {
-        // Debug: Log password verification
-        $passwordMatch = password_verify($password, $user['password']);
-        error_log("PASSWORD VERIFY: " . ($passwordMatch ? "MATCH" : "NO MATCH"));
-        error_log("STORED HASH: " . substr($user['password'], 0, 30) . "...");
+        // TESTING MODE: Plain text password comparison (remove in production!)
+        $passwordMatch = ($password === $user['password']);
+        error_log("PASSWORD CHECK (plain text): " . ($passwordMatch ? "MATCH" : "NO MATCH"));
+        error_log("STORED PASSWORD: " . $user['password']);
 
         if ($passwordMatch) {
             $_SESSION['user_id'] = $user['id'];
