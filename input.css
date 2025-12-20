@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* MDM Custom Component Classes */
+@layer components {
+  /* Stat Card - White rounded card */
+  .mdm-card {
+    @apply bg-mdm-card rounded-card shadow-card p-6;
+  }
+
+  .mdm-card-hover {
+    @apply transition-shadow duration-300 hover:shadow-card-hover;
+  }
+
+  /* Pill Tag - Beige rounded label */
+  .mdm-tag {
+    @apply inline-block bg-mdm-tag text-mdm-text text-sm font-medium px-4 py-2 rounded-pill;
+  }
+
+  /* Stat Number */
+  .mdm-stat {
+    @apply text-stat text-mdm-text font-bold;
+  }
+
+  .mdm-stat-lg {
+    @apply text-stat-lg text-mdm-text font-bold;
+  }
+
+  /* Sidebar Nav Item */
+  .mdm-nav-item {
+    @apply flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer;
+  }
+
+  .mdm-nav-item.active {
+    @apply text-white bg-white/10;
+  }
+
+  /* Icon Circle (for maintenance status) */
+  .mdm-icon-circle {
+    @apply w-12 h-12 rounded-full bg-mdm-tag flex items-center justify-center;
+  }
+
+  /* Status Card (maintenance row) */
+  .mdm-status-card {
+    @apply flex flex-col items-center gap-2 bg-mdm-card rounded-card p-6 min-w-[140px];
+  }
+
+  /* Header Button */
+  .mdm-header-btn {
+    @apply flex items-center gap-2 bg-mdm-accent text-mdm-text px-4 py-2 rounded-pill font-medium transition-colors hover:bg-mdm-tag;
+  }
+
+  /* Page Title */
+  .mdm-page-title {
+    @apply text-heading text-mdm-text;
+  }
+}
+
+/* Scrollbar Styling */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+}

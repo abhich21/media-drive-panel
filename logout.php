@@ -1,0 +1,11 @@
+<?php
+/**
+ * MDM Logout Handler
+ */
+
+session_start();
+session_unset();
+session_destroy();
+
+header('Location: ' . dirname($_SERVER['PHP_SELF']) . '/login.php');
+exit;
