@@ -12,7 +12,7 @@ require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../../includes/queries/dashboard.php';
 
-// requireAuth('superadmin');
+requireAdmin();
 
 // Fetch data from database
 $overview = getOverviewStats();

@@ -40,35 +40,43 @@ switch ($action) {
     case 'stats':
         getCarStats();
         break;
+    case 'get_events':
+        getEventsList();
+        break;
+    case 'restore':
+        restoreCar();
+        break;
     default:
         errorResponse('Invalid action', 400);
 }
 
 /**
- * List all cars (optionally filtered by event)
+ * List all cars with pagination (optionally filtered by event)
  */
 function listCars()
 {
+    require_once __DIR__ . '/../includes/queries/cars.php';
+    
     $eventId = $_GET['event_id'] ?? null;
-    $status = $_GET['status'] ?? null;
-
-    $sql = "SELECT * FROM cars WHERE 1=1";
-    $params = [];
-
-    if ($eventId) {
-        $sql .= " AND event_id = ?";
-        $params[] = $eventId;
-    }
-
-    if ($status && $status !== 'all') {
-        $sql .= " AND status = ?";
-        $params[] = $status;
-    }
-
-    $sql .= " ORDER BY name ASC";
-
-    $cars = dbQuery($sql, $params);
-    successResponse($cars);
+    $status = $_GET['status'] ?? 'all';
+    $page = max(1, intval($_GET['page'] ?? 1));
+    $perPage = max(1, min(50, intval($_GET['per_page'] ?? 12)));
+    
+    $cars = getCarsPaginated($eventId, $status, $page, $perPage);
+    $total = getTotalCarsCount($eventId, $status);
+    $totalPages = ceil($total / $perPage);
+    
+    successResponse([
+        'cars' => $cars,
+        'pagination' => [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $total,
+            'total_pages' => $totalPages,
+            'has_prev' => $page > 1,
+            'has_next' => $page < $totalPages
+        ]
+    ]);
 }
 
 /**
@@ -99,10 +107,10 @@ function getCar()
  */
 function createCar()
 {
-    // requireAuth('superadmin');
-
     $data = [
         'event_id' => $_POST['event_id'] ?? null,
+        'car_code' => trim($_POST['car_code'] ?? ''),
+        'engine_number' => trim($_POST['engine_number'] ?? ''),
         'name' => trim($_POST['name'] ?? ''),
         'model' => trim($_POST['model'] ?? ''),
         'registration_number' => trim($_POST['registration_number'] ?? ''),
@@ -115,8 +123,8 @@ function createCar()
         errorResponse('Event ID and name are required');
     }
 
-    $sql = "INSERT INTO cars (event_id, name, model, registration_number, color, initial_km, initial_fuel) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO cars (event_id, car_code, engine_number, name, model, registration_number, color, initial_km, initial_fuel) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     dbExecute($sql, array_values($data));
     $id = dbLastId();
@@ -129,8 +137,6 @@ function createCar()
  */
 function updateCar()
 {
-    // requireAuth('superadmin');
-
     $id = $_POST['id'] ?? null;
     if (!$id)
         errorResponse('Car ID required');
@@ -138,7 +144,7 @@ function updateCar()
     $updates = [];
     $params = [];
 
-    $fields = ['name', 'model', 'registration_number', 'color', 'image_url'];
+    $fields = ['event_id', 'car_code', 'engine_number', 'name', 'model', 'registration_number', 'color', 'image_url', 'initial_km', 'initial_fuel'];
     foreach ($fields as $field) {
         if (isset($_POST[$field])) {
             $updates[] = "$field = ?";
@@ -325,4 +331,27 @@ function getCarStats()
     $stats['total_km'] = abs($distance['total_km'] ?? 0);
 
     successResponse($stats);
+}
+
+/**
+ * Get events list for dropdown
+ */
+function getEventsList()
+{
+    require_once __DIR__ . '/../includes/queries/cars.php';
+    $events = getAllActiveEvents();
+    successResponse($events);
+}
+
+/**
+ * Restore soft-deleted car
+ */
+function restoreCar()
+{
+    $id = $_POST['id'] ?? null;
+    if (!$id)
+        errorResponse('Car ID required');
+
+    dbExecute("UPDATE cars SET is_active = 1 WHERE id = ?", [$id]);
+    successResponse(null, 'Car restored successfully');
 }
