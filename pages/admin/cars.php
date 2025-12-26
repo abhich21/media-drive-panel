@@ -225,8 +225,8 @@ include __DIR__ . '/../../components/layout.php';
 <script>
 const basePath = '<?= BASE_PATH ?>';
 let currentPage = 1;
-let currentEventId = 'all';
-let currentStatus = 'all';
+let currentEventId = localStorage.getItem('cars_eventId') || 'all';
+let currentStatus = localStorage.getItem('cars_status') || 'all';
 let deleteCarId = null;
 let eventsData = [];
 
@@ -235,8 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
     loadEvents();
     loadCars();
     
+    // Restore status tab
+    document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.status === currentStatus);
+    });
+    
     document.getElementById('eventFilter').addEventListener('change', function() {
         currentEventId = this.value;
+        localStorage.setItem('cars_eventId', currentEventId);
         currentPage = 1;
         loadCars();
     });
@@ -256,7 +262,8 @@ async function loadEvents() {
             const modalDropdown = document.getElementById('carEventId');
             
             eventsData.forEach(event => {
-                filterDropdown.innerHTML += `<option value="${event.id}">${escapeHtml(event.name)}</option>`;
+                const selected = event.id == currentEventId ? 'selected' : '';
+                filterDropdown.innerHTML += `<option value="${event.id}" ${selected}>${escapeHtml(event.name)}</option>`;
                 modalDropdown.innerHTML += `<option value="${event.id}">${escapeHtml(event.name)}</option>`;
             });
         }
@@ -564,6 +571,20 @@ async function restoreCar(carId, carName) {
     } catch (error) {
         alert('An error occurred');
     }
+}
+
+// Filter by status
+function filterByStatus(status) {
+    currentStatus = status;
+    localStorage.setItem('cars_status', status);
+    currentPage = 1;
+    
+    // Update active tab
+    document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.status === status);
+    });
+    
+    loadCars();
 }
 
 // Utility

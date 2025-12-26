@@ -243,8 +243,8 @@ include __DIR__ . '/../../components/layout.php';
 <script>
 const basePath = '<?= BASE_PATH ?>';
 let currentPage = 1;
-let currentEventId = 'all';
-let currentFilter = 'all';
+let currentEventId = localStorage.getItem('promoters_eventId') || 'all';
+let currentFilter = localStorage.getItem('promoters_filter') || 'all';
 let deletePromoterId = null;
 let currentViewPromoterId = null;
 let eventsData = [];
@@ -254,8 +254,14 @@ document.addEventListener('DOMContentLoaded', function() {
     loadEvents();
     loadPromoters();
     
+    // Restore filter tab
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === currentFilter);
+    });
+    
     document.getElementById('eventFilter').addEventListener('change', function() {
         currentEventId = this.value;
+        localStorage.setItem('promoters_eventId', currentEventId);
         currentPage = 1;
         loadPromoters();
     });
@@ -275,7 +281,8 @@ async function loadEvents() {
             const modalDropdown = document.getElementById('promoterEventId');
             
             eventsData.forEach(event => {
-                filterDropdown.innerHTML += `<option value="${event.id}">${escapeHtml(event.name)}</option>`;
+                const selected = event.id == currentEventId ? 'selected' : '';
+                filterDropdown.innerHTML += `<option value="${event.id}" ${selected}>${escapeHtml(event.name)}</option>`;
                 modalDropdown.innerHTML += `<option value="${event.id}">${escapeHtml(event.name)}</option>`;
             });
         }
@@ -719,6 +726,20 @@ async function restorePromoter(promoterId, promoterName) {
     } catch (error) {
         alert('An error occurred');
     }
+}
+
+// Filter by type
+function filterByType(filter) {
+    currentFilter = filter;
+    localStorage.setItem('promoters_filter', filter);
+    currentPage = 1;
+    
+    // Update active tab
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    
+    loadPromoters();
 }
 
 // Utility
