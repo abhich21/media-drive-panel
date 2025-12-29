@@ -34,30 +34,43 @@ switch ($action) {
     case 'mark_attendance':
         markAttendance();
         break;
+    case 'get_events':
+        getEventsList();
+        break;
+    case 'restore':
+        restorePromoter();
+        break;
     default:
         errorResponse('Invalid action', 400);
 }
 
 /**
- * List all promoters
+ * List all promoters with pagination
  */
 function listPromoters()
 {
+    require_once __DIR__ . '/../includes/queries/promoters.php';
+    
     $eventId = $_GET['event_id'] ?? null;
-
-    if ($eventId) {
-        $sql = "SELECT u.* FROM users u 
-                JOIN event_promoters ep ON ep.promoter_id = u.id 
-                WHERE ep.event_id = ? AND u.role = 'promoter' AND u.is_active = 1
-                ORDER BY u.name";
-        $promoters = dbQuery($sql, [$eventId]);
-    } else {
-        $promoters = dbQuery(
-            "SELECT * FROM users WHERE role = 'promoter' AND is_active = 1 ORDER BY name"
-        );
-    }
-
-    successResponse($promoters);
+    $filter = $_GET['filter'] ?? 'all';
+    $page = max(1, intval($_GET['page'] ?? 1));
+    $perPage = max(1, min(50, intval($_GET['per_page'] ?? 12)));
+    
+    $promoters = getPromotersPaginated($eventId, $filter, $page, $perPage);
+    $total = getTotalPromotersCount($eventId, $filter);
+    $totalPages = ceil($total / $perPage);
+    
+    successResponse([
+        'promoters' => $promoters,
+        'pagination' => [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $total,
+            'total_pages' => $totalPages,
+            'has_prev' => $page > 1,
+            'has_next' => $page < $totalPages
+        ]
+    ]);
 }
 
 /**
@@ -70,12 +83,24 @@ function getPromoter()
         errorResponse('Promoter ID required');
 
     $promoter = dbQueryOne(
-        "SELECT id, name, email, phone, avatar FROM users WHERE id = ? AND role = 'promoter'",
+        "SELECT id, name, email, phone, password, avatar FROM users WHERE id = ? AND role = 'promoter'",
         [$id]
     );
 
     if (!$promoter)
         errorResponse('Promoter not found', 404);
+
+    // Get event assignment
+    $eventAssignment = dbQueryOne(
+        "SELECT id as event_promoter_id, event_id, assigned_cars FROM event_promoters WHERE promoter_id = ? AND is_deleted = 0 ORDER BY id DESC LIMIT 1",
+        [$id]
+    );
+
+    if ($eventAssignment) {
+        $promoter['event_id'] = $eventAssignment['event_id'];
+        $promoter['event_promoter_id'] = $eventAssignment['event_promoter_id'];
+        $promoter['assigned_cars'] = $eventAssignment['assigned_cars'];
+    }
 
     successResponse($promoter);
 }
@@ -85,8 +110,6 @@ function getPromoter()
  */
 function createPromoter()
 {
-    // requireAuth('superadmin');
-
     $data = [
         'name' => trim($_POST['name'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
@@ -94,8 +117,15 @@ function createPromoter()
         'password' => $_POST['password'] ?? '',
     ];
 
+    $eventId = $_POST['event_id'] ?? null;
+    $assignedCars = isset($_POST['assigned_cars']) ? implode(',', $_POST['assigned_cars']) : null;
+
     if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
         errorResponse('Name, email, and password are required');
+    }
+
+    if (empty($eventId)) {
+        errorResponse('Event is required');
     }
 
     // Check if email exists
@@ -104,13 +134,18 @@ function createPromoter()
         errorResponse('Email already exists');
     }
 
-    // TESTING MODE: Store plain text password (remove in production!)
-    $plainPassword = $data['password'];
-
+    // Create promoter user
     $sql = "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'promoter')";
-    dbExecute($sql, [$data['name'], $data['email'], $data['phone'], $plainPassword]);
+    dbExecute($sql, [$data['name'], $data['email'], $data['phone'], $data['password']]);
+    $promoterId = dbLastId();
 
-    successResponse(['id' => dbLastId()], 'Promoter created successfully');
+    // Create event assignment
+    dbExecute(
+        "INSERT INTO event_promoters (event_id, promoter_id, assigned_cars, is_deleted) VALUES (?, ?, ?, 0)",
+        [$eventId, $promoterId, $assignedCars]
+    );
+
+    successResponse(['id' => $promoterId], 'Promoter created successfully');
 }
 
 /**
@@ -118,8 +153,6 @@ function createPromoter()
  */
 function updatePromoter()
 {
-    // requireAuth('superadmin');
-
     $id = $_POST['id'] ?? null;
     if (!$id)
         errorResponse('Promoter ID required');
@@ -136,15 +169,48 @@ function updatePromoter()
 
     if (isset($_POST['password']) && !empty($_POST['password'])) {
         $updates[] = "password = ?";
-        // TESTING MODE: Store plain text password (remove in production!)
         $params[] = $_POST['password'];
     }
 
-    if (empty($updates))
-        errorResponse('No fields to update');
+    if (!empty($updates)) {
+        $params[] = $id;
+        dbExecute("UPDATE users SET " . implode(', ', $updates) . " WHERE id = ?", $params);
+    }
 
-    $params[] = $id;
-    dbExecute("UPDATE users SET " . implode(', ', $updates) . " WHERE id = ?", $params);
+    // Handle event assignment
+    $eventId = $_POST['event_id'] ?? null;
+    $eventPromoterId = $_POST['event_promoter_id'] ?? null;
+    $assignedCars = isset($_POST['assigned_cars']) ? implode(',', $_POST['assigned_cars']) : null;
+
+    if ($eventId) {
+        if ($eventPromoterId) {
+            // Update existing assignment
+            dbExecute(
+                "UPDATE event_promoters SET event_id = ?, assigned_cars = ? WHERE id = ?",
+                [$eventId, $assignedCars, $eventPromoterId]
+            );
+        } else {
+            // Check if assignment exists
+            $existing = dbQueryOne(
+                "SELECT id FROM event_promoters WHERE promoter_id = ? AND is_deleted = 0",
+                [$id]
+            );
+            
+            if ($existing) {
+                // Update existing
+                dbExecute(
+                    "UPDATE event_promoters SET event_id = ?, assigned_cars = ? WHERE id = ?",
+                    [$eventId, $assignedCars, $existing['id']]
+                );
+            } else {
+                // Create new assignment
+                dbExecute(
+                    "INSERT INTO event_promoters (event_id, promoter_id, assigned_cars, is_deleted) VALUES (?, ?, ?, 0)",
+                    [$eventId, $id, $assignedCars]
+                );
+            }
+        }
+    }
 
     successResponse(null, 'Promoter updated successfully');
 }
@@ -238,4 +304,28 @@ function markAttendance()
     }
 
     successResponse(null, 'Attendance marked successfully');
+}
+
+/**
+ * Get events list for dropdown filter
+ */
+function getEventsList()
+{
+    $events = dbQuery(
+        "SELECT id, name FROM events WHERE (is_deleted = 0 OR is_deleted IS NULL) ORDER BY name ASC"
+    );
+    successResponse($events);
+}
+
+/**
+ * Restore soft-deleted promoter
+ */
+function restorePromoter()
+{
+    $id = $_POST['id'] ?? null;
+    if (!$id)
+        errorResponse('Promoter ID required');
+
+    dbExecute("UPDATE users SET is_active = 1 WHERE id = ?", [$id]);
+    successResponse(null, 'Promoter restored successfully');
 }

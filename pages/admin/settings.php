@@ -11,7 +11,7 @@ $clientLogo = 'Admin Panel';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 
-// requireAuth(['superadmin']);
+requireAdmin();
 
 include __DIR__ . '/../../components/layout.php';
 ?>

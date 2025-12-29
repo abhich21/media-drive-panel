@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/database.php';
 // Get base URL for redirects (calculate from includes folder, not script location)
 // This ensures correct path whether called from /api/, /pages/, or root
 $scriptPath = $_SERVER['SCRIPT_NAME'];
-$projectRoot = '/mdm-new/media-drive-panel'; // Updated project folder path
+$projectRoot = '/media-drive-panel'; // Updated project folder path
 define('BASE_PATH', $projectRoot);
 
 /**
@@ -70,6 +70,81 @@ function requireAuth($roles = null)
 
     if ($roles !== null && !hasRole($roles)) {
         header('Location: ' . BASE_PATH . '/unauthorized.php');
+        exit;
+    }
+}
+
+/**
+ * Check if current user is admin (superadmin in database)
+ * @return bool
+ */
+function isAdmin()
+{
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'superadmin';
+}
+
+/**
+ * Check if current user is client
+ * @return bool
+ */
+function isClient()
+{
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'client';
+}
+
+/**
+ * Check if current user is promoter
+ * @return bool
+ */
+function isPromoter()
+{
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'promoter';
+}
+
+/**
+ * Require admin role - redirect if not admin
+ */
+function requireAdmin()
+{
+    if (!isLoggedIn()) {
+        header('Location: ' . BASE_PATH . '/login.php');
+        exit;
+    }
+    
+    if (!isAdmin()) {
+        header('Location: ' . BASE_PATH . '/login.php?error=unauthorized');
+        exit;
+    }
+}
+
+/**
+ * Require client role - redirect if not client
+ */
+function requireClient()
+{
+    if (!isLoggedIn()) {
+        header('Location: ' . BASE_PATH . '/login.php');
+        exit;
+    }
+    
+    if (!isClient()) {
+        header('Location: ' . BASE_PATH . '/login.php?error=unauthorized');
+        exit;
+    }
+}
+
+/**
+ * Require promoter role - redirect if not promoter
+ */
+function requirePromoter()
+{
+    if (!isLoggedIn()) {
+        header('Location: ' . BASE_PATH . '/login.php');
+        exit;
+    }
+    
+    if (!isPromoter()) {
+        header('Location: ' . BASE_PATH . '/login.php?error=unauthorized');
         exit;
     }
 }

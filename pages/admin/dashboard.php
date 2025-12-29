@@ -10,24 +10,13 @@ $clientLogo = 'MDM Admin';
 
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/queries/dashboard.php';
 
-// requireAuth('superadmin');
+requireAdmin();
 
-// TODO: Fetch from database
-$overview = [
-    'totalEvents' => 12,
-    'activeEvents' => 3,
-    'totalCars' => 150,
-    'totalPromoters' => 45,
-    'totalDrives' => 1250,
-    'activeNow' => 8,
-];
-
-$recentEvents = [
-    ['id' => 1, 'name' => 'BMW X Series Launch', 'client' => 'BMW India', 'status' => 'active', 'date' => '2024-01-15'],
-    ['id' => 2, 'name' => 'Mercedes EQ Drive', 'client' => 'Mercedes-Benz', 'status' => 'active', 'date' => '2024-01-12'],
-    ['id' => 3, 'name' => 'Audi Q Range Experience', 'client' => 'Audi India', 'status' => 'completed', 'date' => '2024-01-08'],
-];
+// Fetch data from database
+$overview = getOverviewStats();
+$recentEvents = getRecentEvents(5);
 
 include __DIR__ . '/../../components/layout.php';
 ?>

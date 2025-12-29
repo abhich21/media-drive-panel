@@ -21,6 +21,7 @@ $adminNav = [
     ['id' => 'cars', 'label' => 'Manage Cars', 'icon' => 'car', 'url' => '/pages/admin/cars.php'],
     ['id' => 'promoters', 'label' => 'Manage Promoters', 'icon' => 'users', 'url' => '/pages/admin/promoters.php'],
     ['id' => 'events', 'label' => 'Events', 'icon' => 'calendar', 'url' => '/pages/admin/events.php'],
+    ['id' => 'car-logs', 'label' => 'Car Logs', 'icon' => 'eye', 'url' => '/pages/admin/car-logs.php'],
     ['id' => 'analytics', 'label' => 'Analytics', 'icon' => 'chart', 'url' => '/pages/admin/analytics.php'],
     ['id' => 'settings', 'label' => 'Settings', 'icon' => 'settings', 'url' => '/pages/admin/settings.php'],
 ];
