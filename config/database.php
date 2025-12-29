@@ -4,12 +4,17 @@
  * Media Drive Management System
  */
 
-// Database credentials - Update these for your environment
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'mdm');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_CHARSET', 'utf8mb4');
+// Load environment variables from .env file
+require_once __DIR__ . '/env-loader.php';
+loadEnv(__DIR__ . '/../.env');
+
+// Database credentials - loaded from .env file
+// Fallback to default values if .env is not found
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'mdm');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
 
 // Timezone Configuration (IST - India Standard Time)
 define('APP_TIMEZONE', 'Asia/Kolkata');

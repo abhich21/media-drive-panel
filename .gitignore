@@ -17,10 +17,13 @@ vendor/
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
 npm-debug.log*
+error_log
+php_errors.log
 
 # Build files
 dist/
@@ -29,3 +32,21 @@ build/
 # Temporary files
 *.tmp
 *.temp
+*.cache
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Uploads (uncomment if you don't want to track user uploads)
+# uploads/*
+# !uploads/.gitkeep
+
+# Cache directories
+cache/
+*.cache
+
+# Package lock files (optional - uncomment if you want to ignore)
+# package-lock.json
+# composer.lock
