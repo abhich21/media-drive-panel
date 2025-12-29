@@ -21,7 +21,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "Poppins", "SF Pro Display", "system-ui", "sans-serif"],
+        sans: ["Poppins", "Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
         stat: ["3.5rem", { lineHeight: "1.1", fontWeight: "700" }],

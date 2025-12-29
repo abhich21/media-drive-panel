@@ -26,16 +26,22 @@ $adminNav = [
 ];
 
 $promoterNav = [
-    ['id' => 'dashboard', 'label' => 'My Dashboard', 'icon' => 'home', 'url' => '/pages/promoter/dashboard.php'],
-    ['id' => 'car-status', 'label' => 'Update Car Status', 'icon' => 'car', 'url' => '/pages/promoter/car-status.php'],
-    ['id' => 'exit-log', 'label' => 'Exit Logging', 'icon' => 'calendar', 'url' => '/pages/promoter/exit-log.php'],
+    ['id' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home', 'url' => '/pages/promoter/dashboard.php'],
+    ['id' => 'cars', 'label' => 'Car Status Update', 'icon' => 'car', 'url' => '/pages/promoter/car-status.php'],
     ['id' => 'feedback', 'label' => 'Feedback', 'icon' => 'check', 'url' => '/pages/promoter/feedback.php'],
+    ['id' => 'post-drive', 'label' => 'Post Drive Details', 'icon' => 'arrow-left', 'url' => '/pages/promoter/post-drive.php'],
+    ['id' => 'drive-logs', 'label' => 'Drive Logs', 'icon' => 'list', 'url' => '/pages/promoter/drive-logs.php'],
+];
+
+$cleaningNav = [
+    ['id' => 'dashboard', 'label' => 'Cleaning Dashboard', 'icon' => 'home', 'url' => '/pages/cleaning/dashboard.php'],
 ];
 
 $navItems = match ($userRole) {
     'superadmin' => $adminNav,
     'client' => $clientNav,
     'promoter' => $promoterNav,
+    'cleaning_staff' => $cleaningNav,
     default => $clientNav,
 };
 
@@ -50,6 +56,8 @@ function getSidebarIconSvg($icon)
         'eye' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>',
         'settings' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>',
         'check' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+        'arrow-left' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/>',
+        'list' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>',
     ];
     return $paths[$icon] ?? $paths['home'];
 }
@@ -317,6 +325,7 @@ function getSidebarIconSvg($icon)
         const sidebar = document.getElementById('mdmSidebar');
         const main = document.querySelector('.mdm-main');
         const header = document.querySelector('.mdm-header');
+        const legend = document.querySelector('.status-legend-footer');
 
         sidebar.classList.toggle('collapsed');
 
@@ -324,10 +333,12 @@ function getSidebarIconSvg($icon)
         if (sidebar.classList.contains('collapsed')) {
             if (main) main.style.marginLeft = '72px';
             if (header) header.style.left = '72px';
+            if (legend) legend.style.left = '72px';
             localStorage.setItem('sidebarCollapsed', 'true');
         } else {
             if (main) main.style.marginLeft = '240px';
             if (header) header.style.left = '240px';
+            if (legend) legend.style.left = '240px';
             localStorage.setItem('sidebarCollapsed', 'false');
         }
     }
@@ -342,11 +353,13 @@ function getSidebarIconSvg($icon)
         const sidebar = document.getElementById('mdmSidebar');
         const main = document.querySelector('.mdm-main');
         const header = document.querySelector('.mdm-header');
+        const legend = document.querySelector('.status-legend-footer');
 
         if (window.innerWidth <= 768) {
             // Mobile view - reset all inline styles
             if (main) main.style.marginLeft = '';
             if (header) header.style.left = '';
+            if (legend) legend.style.left = '';
             sidebar.classList.remove('collapsed');
         } else {
             // Desktop view - restore collapsed state if saved
@@ -354,10 +367,12 @@ function getSidebarIconSvg($icon)
                 sidebar.classList.add('collapsed');
                 if (main) main.style.marginLeft = '72px';
                 if (header) header.style.left = '72px';
+                if (legend) legend.style.left = '72px';
             } else {
                 sidebar.classList.remove('collapsed');
                 if (main) main.style.marginLeft = '240px';
                 if (header) header.style.left = '240px';
+                if (legend) legend.style.left = '240px';
             }
         }
     }

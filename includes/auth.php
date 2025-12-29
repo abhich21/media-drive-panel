@@ -140,6 +140,8 @@ function getDashboardUrl($role)
             return $base . '/pages/client/dashboard.php';
         case 'promoter':
             return $base . '/pages/promoter/dashboard.php';
+        case 'cleaning_staff':
+            return $base . '/pages/cleaning/dashboard.php';
         default:
             return $base . '/login.php';
     }

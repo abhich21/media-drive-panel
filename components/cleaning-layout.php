@@ -1,16 +1,15 @@
 <?php
 /**
- * MDM Base Layout Component
- * Main wrapper with sidebar and header - Pixel Perfect Version
+ * Cleaning Staff Layout
+ * Same styling as main layout but without the sidebar
  */
 
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 // Defaults
-$pageTitle = $pageTitle ?? 'Dashboard';
+$pageTitle = $pageTitle ?? 'Cleaning Dashboard';
 $currentPage = $currentPage ?? 'dashboard';
-$clientLogo = $clientLogo ?? 'Client Logo';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,9 +28,6 @@ $clientLogo = $clientLogo ?? 'Client Logo';
     <!-- Styles -->
     <link href="<?= BASE_PATH ?>/assets/css/styles.css" rel="stylesheet">
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         /* Critical Layout Styles */
         * {
@@ -47,14 +43,16 @@ $clientLogo = $clientLogo ?? 'Client Logo';
             -webkit-font-smoothing: antialiased;
         }
 
-        .mdm-main {
-            margin-left: 240px;
+        /* Cleaning layout - no sidebar margin */
+        .mdm-main-cleaning {
             padding-top: 80px;
             min-height: 100vh;
         }
 
         .mdm-content {
             padding: 15px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .mdm-page-heading {
@@ -67,8 +65,7 @@ $clientLogo = $clientLogo ?? 'Client Logo';
 
         /* Mobile Responsive Layout */
         @media (max-width: 768px) {
-            .mdm-main {
-                margin-left: 0;
+            .mdm-main-cleaning {
                 padding-top: 70px;
             }
 
@@ -78,23 +75,13 @@ $clientLogo = $clientLogo ?? 'Client Logo';
 
             .mdm-page-heading {
                 font-size: 24px;
-                margin-bottom: 16px;
             }
         }
     </style>
 </head>
 
 <body>
-    <?php include __DIR__ . '/sidebar.php'; ?>
     <?php include __DIR__ . '/header.php'; ?>
 
-    <!-- Main Content Area -->
-    <main class="mdm-main">
+    <main class="mdm-main-cleaning">
         <div class="mdm-content">
-            <!-- Page Title -->
-            <h1 class="mdm-page-heading"><?= h($pageTitle) ?></h1>
-
-            <!-- Page Content Slot -->
-            <?php if (isset($pageContent)): ?>
-                <?php echo $pageContent; ?>
-            <?php endif; ?>

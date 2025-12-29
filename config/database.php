@@ -11,6 +11,10 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
+// Timezone Configuration (IST - India Standard Time)
+define('APP_TIMEZONE', 'Asia/Kolkata');
+date_default_timezone_set(APP_TIMEZONE);
+
 /**
  * Get PDO Database Connection
  * @return PDO

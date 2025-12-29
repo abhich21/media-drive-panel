@@ -16,6 +16,7 @@ if (isset($_SESSION['user_id'])) {
         'superadmin' => $basePath . '/pages/admin/dashboard.php',
         'client' => $basePath . '/pages/client/dashboard.php',
         'promoter' => $basePath . '/pages/promoter/dashboard.php',
+        'cleaning_staff' => $basePath . '/pages/cleaning/dashboard.php',
     ];
     header('Location: ' . ($redirects[$role] ?? $basePath . '/'));
     exit;

@@ -15,19 +15,36 @@ require_once __DIR__ . '/../../includes/helpers.php';
 
 $carId = $_GET['car_id'] ?? 1;
 
-// TODO: Fetch from database
-$car = [
-    'id' => $carId,
-    'name' => 'BMW X5 Sport',
-    'registration' => 'MH-01-AB-1234',
-    'lastKm' => 45678.5,
-    'lastFuel' => 85,
-];
+// Fetch from database
+$car = dbQueryOne("
+    SELECT c.*, 
+    (SELECT km_reading FROM car_logs WHERE car_id = c.id ORDER BY created_at DESC LIMIT 1) as lastKm,
+    (SELECT fuel_level FROM car_logs WHERE car_id = c.id ORDER BY created_at DESC LIMIT 1) as lastFuel
+    FROM cars c 
+    WHERE c.id = ?
+", [$carId]);
+
+if (!$car) {
+    header('Location: ' . BASE_PATH . '/pages/promoter/dashboard.php');
+    exit;
+}
+
+// Set defaults if no logs found
+$car['lastKm'] = $car['lastKm'] ?? 0;
+$car['lastFuel'] = $car['lastFuel'] ?? 100;
 
 include __DIR__ . '/../../components/layout.php';
 ?>
 
 <div class="max-w-2xl mx-auto">
+    <a href="dashboard.php"
+        class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 font-medium mb-6 transition-colors">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Dashboard
+    </a>
+
     <!-- Car Info -->
     <div class="mdm-card mb-6">
         <div class="flex items-center gap-4">
@@ -171,10 +188,14 @@ include __DIR__ . '/../../components/layout.php';
     // Form submission
     document.getElementById('exitForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        // TODO: Submit via API
-        alert('Exit logged successfully!');
-        window.location = '<?= BASE_PATH ?>/pages/promoter/dashboard.php';
+        // TODO: Submit via API (Mock for now as backend endpoint might not be ready or same as other logs)
+        // Check if we have an API endpoint for this? Based on other files it seems to be api/cars.php with action log_exit
+        // But for now just showing the toast as requested to replace alert.
+        
+        showToast('Exit logged successfully!', 'success');
+        setTimeout(() => window.location = '<?= BASE_PATH ?>/pages/promoter/dashboard.php', 1500);
     });
 </script>
 
+<?php include __DIR__ . '/../../components/status-legend.php'; ?>
 <?php include __DIR__ . '/../../components/layout-footer.php'; ?>

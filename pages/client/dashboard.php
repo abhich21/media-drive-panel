@@ -430,7 +430,7 @@ include __DIR__ . '/../../components/layout.php';
         </div>
 
         <div class="car-container">
-            <img src="<?= BASE_PATH ?>/img/Asset 1@5x.png" alt="Car">
+            <img src="<?= BASE_PATH ?>/img/client-ui-mockups/Asset 1@5x.png" alt="Car">
         </div>
     </div>
 </div>

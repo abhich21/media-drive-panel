@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // TODO: Fetch from database
 $cars = [
-    ['id' => 1, 'name' => 'Tata Nexon EV', 'model' => 'Nexon EV Max', 'registration' => 'MH01AB1234', 'color' => 'Teal Blue', 'status' => 'on_drive', 'event' => 'Media Drive 2024'],
-    ['id' => 2, 'name' => 'Tata Harrier', 'model' => 'Harrier Dark', 'registration' => 'MH01CD5678', 'color' => 'Atlas Black', 'status' => 'cleaned', 'event' => 'Media Drive 2024'],
-    ['id' => 3, 'name' => 'Tata Safari', 'model' => 'Safari Adventure', 'registration' => 'MH01EF9012', 'color' => 'Tropical Mist', 'status' => 'standby', 'event' => 'Media Drive 2024'],
-    ['id' => 4, 'name' => 'Tata Punch', 'model' => 'Punch Creative', 'registration' => 'MH01GH3456', 'color' => 'Meteor Bronze', 'status' => 'cleaning', 'event' => 'Media Drive 2024'],
-    ['id' => 5, 'name' => 'Tata Tiago', 'model' => 'Tiago XZ+', 'registration' => 'MH01IJ7890', 'color' => 'Opal White', 'status' => 'returned', 'event' => 'Media Drive 2024'],
-    ['id' => 6, 'name' => 'Tata Altroz', 'model' => 'Altroz DCA', 'registration' => 'MH01KL2345', 'color' => 'Opera Blue', 'status' => 'hotel', 'event' => 'Media Drive 2024'],
+    ['id' => 1, 'name' => 'Tata Nexon EV', 'model' => 'Nexon EV Max', 'engine_number' => 'ENG001234', 'color' => 'Teal Blue', 'status' => 'on_drive', 'event' => 'Media Drive 2024'],
+    ['id' => 2, 'name' => 'Tata Harrier', 'model' => 'Harrier Dark', 'engine_number' => 'ENG001235', 'color' => 'Atlas Black', 'status' => 'cleaned', 'event' => 'Media Drive 2024'],
+    ['id' => 3, 'name' => 'Tata Safari', 'model' => 'Safari Adventure', 'engine_number' => 'ENG002001', 'color' => 'Tropical Mist', 'status' => 'standby', 'event' => 'Media Drive 2024'],
+    ['id' => 4, 'name' => 'Tata Punch', 'model' => 'Punch Creative', 'engine_number' => 'ENG002002', 'color' => 'Meteor Bronze', 'status' => 'cleaning', 'event' => 'Media Drive 2024'],
+    ['id' => 5, 'name' => 'Tata Tiago', 'model' => 'Tiago XZ+', 'engine_number' => 'ENG003001', 'color' => 'Opal White', 'status' => 'returned', 'event' => 'Media Drive 2024'],
+    ['id' => 6, 'name' => 'Tata Altroz', 'model' => 'Altroz DCA', 'engine_number' => 'ENG003002', 'color' => 'Opera Blue', 'status' => 'hotel', 'event' => 'Media Drive 2024'],
 ];
 
 $events = [
@@ -73,7 +73,7 @@ include __DIR__ . '/../../components/layout.php';
         <thead class="bg-mdm-tag/50">
             <tr>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-mdm-text">Car Name</th>
-                <th class="text-left px-4 py-3 text-sm font-semibold text-mdm-text">Registration</th>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-mdm-text">Engine Number</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-mdm-text">Color</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-mdm-text">Event</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-mdm-text">Status</th>
@@ -89,7 +89,7 @@ include __DIR__ . '/../../components/layout.php';
                         <div class="font-medium text-mdm-text"><?= h($car['name']) ?></div>
                         <div class="text-xs text-mdm-text/50"><?= h($car['model']) ?></div>
                     </td>
-                    <td class="px-4 py-3 text-mdm-text/70"><?= h($car['registration']) ?></td>
+                    <td class="px-4 py-3 text-mdm-text/70"><?= h($car['engine_number']) ?></td>
                     <td class="px-4 py-3 text-mdm-text/70"><?= h($car['color']) ?></td>
                     <td class="px-4 py-3 text-mdm-text/70"><?= h($car['event']) ?></td>
                     <td class="px-4 py-3">
@@ -153,11 +153,11 @@ include __DIR__ . '/../../components/layout.php';
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
                 <div>
-                    <label style="display:block; font-size:14px; font-weight:500; margin-bottom:8px;">Registration
+                    <label style="display:block; font-size:14px; font-weight:500; margin-bottom:8px;">Engine Number
                         *</label>
-                    <input type="text" name="registration" id="carRegistration" required
+                    <input type="text" name="engine_number" id="carEngineNumber" required
                         style="width:100%; padding:12px 16px; border:1px solid #ddd; border-radius:12px; font-size:14px;"
-                        placeholder="e.g. MH01AB1234">
+                        placeholder="e.g. ENG001234">
                 </div>
                 <div>
                     <label style="display:block; font-size:14px; font-weight:500; margin-bottom:8px;">Color</label>
@@ -275,7 +275,7 @@ include __DIR__ . '/../../components/layout.php';
             document.getElementById('carId').value = car.id;
             document.getElementById('carName').value = car.name;
             document.getElementById('carModel').value = car.model || '';
-            document.getElementById('carRegistration').value = car.registration;
+            document.getElementById('carEngineNumber').value = car.engine_number;
             document.getElementById('carColor').value = car.color || '';
             document.getElementById('carStatus').value = car.status;
             openModal('addCarModal');
